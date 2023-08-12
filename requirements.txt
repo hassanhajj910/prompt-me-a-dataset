@@ -1,0 +1,4 @@
+pytorch=>1.12.1
+torchvision=>0.13.1
+Pillow=>9.0.1
+opencv-python=>4.6.0

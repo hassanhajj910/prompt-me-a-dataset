@@ -1,0 +1,5 @@
+{
+    "prompt":"figure.image.object",
+    "box_threshold":0.3,
+    "text_threshold":0.25
+}
