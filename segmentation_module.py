@@ -383,7 +383,7 @@ class scalable():
                 if type(m) == dict:
                     current_mask = m["segmentation"]
                 else:
-                    current_mask = m
+                    current_mask = m[0]
                 
                 geom_coords = self.mask2poly(current_mask)
                 # turn geom_coords into a list of lists to match scalable schema
