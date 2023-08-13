@@ -34,6 +34,64 @@ import torch.nn.functional as F
 
 
 
+def calculate_iou(box1, box2):
+    """
+    Calculate Intersection over Union (IoU) between two bounding boxes.
+
+    Parameters:
+    box1 (list): List containing [x1, y1, x2, y2] of the first bounding box.
+    box2 (list): List containing [x1, y1, x2, y2] of the second bounding box.
+
+    Returns:
+    float: Intersection over Union (IoU) between the two boxes.
+    """
+    x1_overlap = max(box1[0], box2[0])
+    y1_overlap = max(box1[1], box2[1])
+    x2_overlap = min(box1[2], box2[2])
+    y2_overlap = min(box1[3], box2[3])
+
+    intersection_area = max(0, x2_overlap - x1_overlap + 1) * max(0, y2_overlap - y1_overlap + 1)
+
+    box1_area = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
+    box2_area = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
+
+    union_area = box1_area + box2_area - intersection_area
+
+    iou = intersection_area / union_area
+    return iou
+
+
+def non_max_suppression(bboxes, iou_threshold):
+    """
+    Apply Non-Maximum Suppression (NMS) to a list of bounding boxes.
+
+    Parameters:
+    bboxes (list): List of bounding boxes in the format (x1, y1, x2, y2, confidence_score).
+    iou_threshold (float): IoU threshold for considering bounding boxes as duplicates.
+
+    Returns:
+    list: List of selected bounding boxes after NMS.
+    """
+    # Sort the bounding boxes by confidence score in descending order
+    sorted_bboxes = sorted(bboxes, key=lambda x: x[4], reverse=True)
+
+    selected_bboxes = []
+
+    while sorted_bboxes:
+        current_bbox = sorted_bboxes.pop(0)
+        selected_bboxes.append(current_bbox)
+
+        remaining_bboxes = []
+        for bbox in sorted_bboxes:
+            iou = calculate_iou(current_bbox[:4], bbox[:4])
+            if iou < iou_threshold:
+                remaining_bboxes.append(bbox)
+
+        sorted_bboxes = remaining_bboxes
+
+    return selected_bboxes
+
+
 ## show annotations -> from SAM repo
 def show_anns(anns):
     if len(anns) == 0:
@@ -221,40 +279,49 @@ class Dino:
     def infer_bbox(self, image:Union[Dataset, torch.Tensor]):
         with_logits = True
         #TODO add options for Dataset and image
-        
-        caption = self.params["prompt"]
-        caption = caption.lower().strip()
-        if not caption.endswith("."):
-            caption = caption + "."
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        #device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+        caption_list = self.params["prompt"]
 
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = self.model.to(device)
         image = image.to(device)
-        with torch.no_grad():
-            outputs = model(image[None], captions=[caption])
-        logits = outputs["pred_logits"].cpu().sigmoid()[0]  # (nq, 256)
-        boxes = outputs["pred_boxes"].cpu()[0]  # (nq, 4)
-        logits.shape[0]
-        logits_filt = logits.clone()
-        boxes_filt = boxes.clone()
-        filt_mask = logits_filt.max(dim=1)[0] > self.params["box_threshold"]
-        logits_filt = logits_filt[filt_mask]  # num_filt, 256
-        boxes_filt = boxes_filt[filt_mask]  # num_filt, 4
-        logits_filt.shape[0]
+        pred_phrases, box_pred, box_only = [], [], []
+        for caption in caption_list:
+            caption = caption.lower().strip()
+            if not caption.endswith("."):
+                caption = caption + "."
+            #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            #device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+            # model = self.model.to(device)
+            # image = image.to(device)
 
-        tokenlizer = model.tokenizer
-        tokenized = tokenlizer(caption)
-        # build pred
-        pred_phrases = []
-        for logit, box in zip(logits_filt, boxes_filt):
-            pred_phrase = get_phrases_from_posmap(logit > self.params["text_threshold"], tokenized, tokenlizer)
-            if with_logits:
-                pred_phrases.append(pred_phrase + f"({str(logit.max().item())[:4]})")
-            else:
-                pred_phrases.append(pred_phrase)
+            with torch.no_grad():
+                outputs = model(image[None], captions=[caption])
+            logits = outputs["pred_logits"].cpu().sigmoid()[0]  # (nq, 256)
+            boxes = outputs["pred_boxes"].cpu()[0]  # (nq, 4)
+            logits.shape[0]
+            logits_filt = logits.clone()
+            boxes_filt = boxes.clone()
+            filt_mask = logits_filt.max(dim=1)[0] > self.params["box_threshold"]
+            logits_filt = logits_filt[filt_mask]  # num_filt, 256
+            boxes_filt = boxes_filt[filt_mask]  # num_filt, 4
+            logits_filt.shape[0]
 
-        return boxes_filt, pred_phrases
+            tokenlizer = model.tokenizer
+            tokenized = tokenlizer(caption)
+            # build pred
+            # pred_phrases, box_pred = [], []
+            for logit, box in zip(logits_filt, boxes_filt):
+
+                #TODO added confidence scores here
+                var = list(torch.cat((box, torch.Tensor(logit.max()).unsqueeze(0))))
+                box_pred.append(var)
+                box_only.append(box)
+                pred_phrase = get_phrases_from_posmap(logit > self.params["text_threshold"], tokenized, tokenlizer)
+                if with_logits:
+                    pred_phrases.append(pred_phrase + f"({str(logit.max().item())[:4]})")
+                else:
+                    pred_phrases.append(pred_phrase)
+        return box_only, pred_phrases, torch.Tensor(box_pred)
 
 
 

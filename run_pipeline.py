@@ -42,16 +42,18 @@ for ind1, im in enumerate(data):
     pilim.save(os.path.join(DOWNSAMPLED_DATA, data_files[ind1]))
 
     # process boxes
-    boxes, _ = dino.infer_bbox(im)
+    boxes, _, boxes_p = dino.infer_bbox(im)
     # crop boxes from image
-    dino_boxes = []
-    for ind2, box in enumerate(boxes):
+    dino_boxes, dino_boxes_p = [], []
+    for ind2, (box, box_p) in enumerate(zip(boxes, boxes_p)):
         # avoid full page boxes
         if box[2]>0.8 and box[3]>0.8:
             continue
 
         absbox = segmentation_module.rel2abs(box, (im.shape[2], im.shape[1]))
         dino_boxes.append(absbox)
+        c = box_p[4].item()
+        dino_boxes_p.append(absbox[:4] + [c])
         
         # save crops
         crop = im[:, absbox[1]:absbox[3], absbox[0]:absbox[2]]*255
@@ -59,6 +61,10 @@ for ind1, im in enumerate(data):
         crop = Image.fromarray(crop, mode="RGB")
         savepath = os.path.join(OUTDIR, '{}_{}_{}.jpg'.format(data_files[ind1], ind1, ind2))
         #crop.save(savepath)
+
+        
+    selected_bboxes = segmentation_module.non_max_suppression(dino_boxes_p, 0.5)
+    dino_boxes = [x[:4] for x in selected_bboxes]     # remove c
     
 
     # TODO fix in scalable object - for now this is a dirty workaround
