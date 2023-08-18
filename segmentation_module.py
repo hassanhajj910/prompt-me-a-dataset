@@ -1,5 +1,5 @@
 # IMAGE 
-import cv2
+# import cv2
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ImageOps import autocontrast
 from shapely.geometry import Polygon
