@@ -20,11 +20,11 @@ DINO_PARAMS = "dino_params.json"
 DINO_WEIGHTS = "dino_files/weights/groundingdino_swint_ogc.pth"
 DINO_CONFIG = "dino_files/config/GroundingDINO_SwinT_OGC.py"
 
-SAM_WEIGHTS = "model_checkpoint/sam_vit_h_4b8939.pth"
+SAM_WEIGHTS = "sam_files/weights/sam_vit_h_4b8939.pth"
 SAM_PARAMS = "sam_params.json"
 
-DATASET = "data/test_images_selection_orig"
-DOWNSAMPLED_DATA = "data/test_images_selection"
+DATASET = "data/test_data"
+DOWNSAMPLED_DATA = "data/test_down"
 OUTDIR = "output/results"
 
 # run dino 
@@ -59,7 +59,7 @@ for ind1, im in enumerate(data):
         crop = im[:, absbox[1]:absbox[3], absbox[0]:absbox[2]]*255
         crop = np.array(crop).astype(np.uint8).transpose(1,2,0)
         crop = Image.fromarray(crop, mode="RGB")
-        savepath = os.path.join(OUTDIR, '{}_{}_{}.jpg'.format(data_files[ind1], ind1, ind2))
+        savepath = os.path.join(OUTDIR, "{}_{}_{}.jpg".format(data_files[ind1], ind1, ind2))
         #crop.save(savepath)
 
         
@@ -88,16 +88,16 @@ for ind1, im in enumerate(data):
     # save boxes and masks to Scalable
 
 # create a data object for downsampled iterms
-down_data = segmentation_module.CustomData(DOWNSAMPLED_DATA, data_model='dino')
-sca_bb = segmentation_module.scalable(down_data, allboxes, region_type='bbox')
+down_data = segmentation_module.CustomData(DOWNSAMPLED_DATA, data_model="dino")
+sca_bb = segmentation_module.scalable(down_data, allboxes, region_type="bbox")
 sca_boxes = sca_bb.create_scalable_project()
-with open("run_dino_results_box.json", 'w') as f:
+with open(os.path.join(OUTDIR, "run_dino_results_box.json"), "w") as f:
     json.dump(sca_boxes, f, indent=4)
 
 
-sca_bb = segmentation_module.scalable(down_data, allmasks, region_type='mask')
+sca_bb = segmentation_module.scalable(down_data, allmasks, region_type="mask")
 sca_boxes = sca_bb.create_scalable_project()
-with open("run_dino_results_masks.json", 'w') as f:
+with open(os.path.join(OUTDIR, "run_dino_results_masks.json"), "w") as f:
     json.dump(sca_boxes, f, indent=4)
 
     
