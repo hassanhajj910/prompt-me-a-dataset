@@ -10,11 +10,9 @@ import json
 
 
 
-# parser = argparse.ArgumentParser("Run Dino", add_help=True)
-# parser.add_argument("--input", "-i", type=str, required=True, help="Directory of input data")
-# parser.add_argument("--params", "-p", type=str, required=True, help="Path to the Dino Params JSON")
-# parser.add_argument("--output", "-o", type=str, required=True, help="Directory of output path")
-# args = parser.parse_args()
+parser = argparse.ArgumentParser("Run pipeline", add_help=True)
+parser.add_argument("--input", "-i", type=str, required=True, help="Directory of input data")
+args = parser.parse_args()
 
 DINO_PARAMS = "dino_params.json"
 DINO_WEIGHTS = "dino_files/weights/groundingdino_swint_ogc.pth"
@@ -23,8 +21,8 @@ DINO_CONFIG = "dino_files/config/GroundingDINO_SwinT_OGC.py"
 SAM_WEIGHTS = "sam_files/weights/sam_vit_h_4b8939.pth"
 SAM_PARAMS = "sam_params.json"
 
-DATASET = "data/dataset"
-DOWNSAMPLED_DATA = "data/dataset_down"
+DATASET = args.input
+DOWNSAMPLED_DATA = DATASET + '_down'
 OUTDIR = "output/results"
 
 # run dino 
