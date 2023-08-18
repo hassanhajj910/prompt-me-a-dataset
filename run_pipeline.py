@@ -23,8 +23,8 @@ DINO_CONFIG = "dino_files/config/GroundingDINO_SwinT_OGC.py"
 SAM_WEIGHTS = "sam_files/weights/sam_vit_h_4b8939.pth"
 SAM_PARAMS = "sam_params.json"
 
-DATASET = "data/test_data"
-DOWNSAMPLED_DATA = "data/test_down"
+DATASET = "data/dataset"
+DOWNSAMPLED_DATA = "data/dataset_down"
 OUTDIR = "output/results"
 
 # run dino 
