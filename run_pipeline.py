@@ -82,6 +82,8 @@ for ind1, im in enumerate(data):
     masks, _, _ = sam.predictor.predict_torch(point_coords=None, point_labels=None, boxes = sam_boxes) 
 
     allboxes.append(dino_boxes)
+
+    masks = masks.cpu()
     allmasks.append(np.array(masks))
     # save boxes and masks to Scalable
 
