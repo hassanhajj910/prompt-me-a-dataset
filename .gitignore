@@ -1,3 +1,5 @@
+__pycache__/*
+
 dino_files/weights/groundingdino_swint_ogc.pth
 !dino_files/weights/.gitkeep
 
@@ -6,3 +8,5 @@ sam_files/weights/sam_vit_h_4b8939.pth
 
 output/results/*
 !output/results/.gitkeep
+
+data/*
