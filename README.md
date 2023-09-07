@@ -38,7 +38,7 @@ sam_params.json
 
 To run the pipeline set the above and run:
 ```
-python run_pipeline.py
+python run_pipeline.py -i data/dataset/
 ```
 
 The results will be saved as a json that can be directly imported into the scalabel application for correction or manipulated for any downstream task.
@@ -46,12 +46,15 @@ The results will be saved as a json that can be directly imported into the scala
 ## To cite this work:
 
 ```
-@inproceedings{ElHajj2023
-author = {Hassan El-Hajj and Matteo Valleriani},
-title = {Prompt me a Dataset: An investigation of text-image prompting for historical image dataset creation using foundation models},
-booktitle = {Proceedings of ICIAP2023 Udine},
-year = {2023}
+@misc{elhajj2023prompt,
+      title={Prompt me a Dataset: An investigation of text-image prompting for historical image dataset creation using foundation models}, 
+      author={Hassan El-Hajj and Matteo Valleriani},
+      year={2023},
+      eprint={2309.01674},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
+```
 ```
 
 
