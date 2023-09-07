@@ -41,7 +41,7 @@ sam_params.json
 
 To run the pipeline set the above and run:
 ```
-python run_pipeline.py
+python run_pipeline.py -i data/dataset/
 ```
 
 The results will be saved as a json that can be directly imported into the scalabel application for correction or manipulated for any downstream task.
