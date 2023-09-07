@@ -1,5 +1,8 @@
 # promt-me-a-dataset
+This work has been accepted as an oral presentation at ICIAP23, AI4DH workshop.
+
 Repo used to generate an image dataset and evaluate the results using two chained models. A Zero shot object detection [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) and a [Segment Anything Model](https://github.com/facebookresearch/segment-anything) (SAM). The results are then returned as a json that can be easily processed within the [scalabel.ai](https://github.com/scalabel/scalabel) application. 
+
 
 
 # Info
@@ -46,11 +49,13 @@ The results will be saved as a json that can be directly imported into the scala
 ## To cite this work:
 
 ```
-@inproceedings{ElHajj2023
-author = {Hassan El-Hajj and Matteo Valleriani},
-title = {Prompt me a Dataset: An investigation of text-image prompting for historical image dataset creation using foundation models},
-booktitle = {Proceedings of ICIAP2023 Udine},
-year = {2023}
+@misc{elhajj2023prompt,
+      title={Prompt me a Dataset: An investigation of text-image prompting for historical image dataset creation using foundation models}, 
+      author={Hassan El-Hajj and Matteo Valleriani},
+      year={2023},
+      eprint={2309.01674},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
