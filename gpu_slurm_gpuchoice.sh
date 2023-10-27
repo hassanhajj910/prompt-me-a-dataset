@@ -1,11 +1,11 @@
 #!/bin/sh
 #SBATCH -p gpu
-#SBATCH -G 2
-#SBATCH -n 10
+#SBATCH -G v100:2
 #SBATCH --mem=50G
 #SBATCH -o outfile.%J
 #SBATCH --mail-user=hhajj@mpiwg-berlin.mpg.de
 #SBATCH -t 24:00:00
+#SBATCH --nodelist=agt001
 module load anaconda3
 module load cuda/11.5.1
 module load gcc/10.2.0

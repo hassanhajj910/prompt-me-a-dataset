@@ -1,5 +1,5 @@
 {
-    "prompt":["figure","image","object","circle","person"],
-    "box_threshold":0.3,
+    "prompt":["figure","drawing","person", "animal", "plant", "object", "image"],
+    "box_threshold":0.30,
     "text_threshold":0.25
 }

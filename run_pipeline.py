@@ -7,7 +7,7 @@ import argparse
 import os
 import logging
 import json
-
+torch.cuda.empty_cache()
 
 
 parser = argparse.ArgumentParser("Run pipeline", add_help=True)
@@ -45,7 +45,7 @@ for ind1, im in enumerate(data):
     dino_boxes, dino_boxes_p = [], []
     for ind2, (box, box_p) in enumerate(zip(boxes, boxes_p)):
         # avoid full page boxes
-        if box[2]>0.8 and box[3]>0.8:
+        if box[2]>0.4 and box[3]>0.6:
             continue
 
         absbox = segmentation_module.rel2abs(box, (im.shape[2], im.shape[1]))
