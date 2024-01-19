@@ -12,6 +12,7 @@ torch.cuda.empty_cache()
 
 parser = argparse.ArgumentParser("Run pipeline", add_help=True)
 parser.add_argument("--input", "-i", type=str, required=True, help="Directory of input data")
+parser.add_argument("--output", "-o", type=str, required=True, help="Directory of output files")
 args = parser.parse_args()
 
 DINO_PARAMS = "dino_params.json"
@@ -23,11 +24,13 @@ SAM_PARAMS = "sam_params.json"
 
 DATASET = args.input
 DOWNSAMPLED_DATA = DATASET + '_down'
-OUTDIR = "output/results"
+# OUTDIR = "output/results"
+OUTDIR = args.output
 
 # run dino 
 dino = segmentation_module.Dino(DINO_WEIGHTS, config= DINO_CONFIG, params=DINO_PARAMS)
-sam = segmentation_module.Sam(SAM_WEIGHTS, params=SAM_PARAMS)
+# SKIP SAME
+# sam = segmentation_module.Sam(SAM_WEIGHTS, params=SAM_PARAMS)
 
 # load data
 data = segmentation_module.CustomData(DATASET, data_model="dino", resize=800)
@@ -72,19 +75,23 @@ for ind1, im in enumerate(data):
         dino_boxes.append([0,0,0,0])
     # pass values to SAM
 
-    samim = im.permute(1,2,0)
-    samim = np.array(samim)*255
-    samim = samim.astype(np.uint8)
-    sam.predictor.set_image(samim)
-    sam.predictor.set_image(samim)
-    sam_boxes = torch.tensor(dino_boxes, device=sam.predictor.device)
-    sam_boxes = sam.predictor.transform.apply_boxes_torch(sam_boxes, samim.shape[:2])
-    masks, _, _ = sam.predictor.predict_torch(point_coords=None, point_labels=None, boxes = sam_boxes) 
+
+    # Skip SAM HERE
+    # samim = im.permute(1,2,0)
+    # samim = np.array(samim)*255
+    # samim = samim.astype(np.uint8)
+    # sam.predictor.set_image(samim)
+    # sam.predictor.set_image(samim)
+    # sam_boxes = torch.tensor(dino_boxes, device=sam.predictor.device)
+    # sam_boxes = sam.predictor.transform.apply_boxes_torch(sam_boxes, samim.shape[:2])
+    # masks, _, _ = sam.predictor.predict_torch(point_coords=None, point_labels=None, boxes = sam_boxes) 
 
     allboxes.append(dino_boxes)
 
-    masks = masks.cpu()
-    allmasks.append(np.array(masks))
+
+    # SKIP SAM HERE
+    # masks = masks.cpu()
+    # allmasks.append(np.array(masks))
     # save boxes and masks to Scalable
 
 # create a data object for downsampled iterms
@@ -95,10 +102,11 @@ with open(os.path.join(OUTDIR, "run_dino_results_box.json"), "w") as f:
     json.dump(sca_boxes, f, indent=4)
 
 
-sca_bb = segmentation_module.scalable(down_data, allmasks, region_type="mask")
-sca_boxes = sca_bb.create_scalable_project()
-with open(os.path.join(OUTDIR, "run_dino_results_masks.json"), "w") as f:
-    json.dump(sca_boxes, f, indent=4)
+# SKIP SAM HERE
+# sca_bb = segmentation_module.scalable(down_data, allmasks, region_type="mask")
+# sca_boxes = sca_bb.create_scalable_project()
+# with open(os.path.join(OUTDIR, "run_dino_results_masks.json"), "w") as f:
+#     json.dump(sca_boxes, f, indent=4)
 
     
 

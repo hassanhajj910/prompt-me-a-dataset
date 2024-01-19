@@ -10,3 +10,4 @@ output/results/*
 !output/results/.gitkeep
 
 data/*
+data_staging/*
